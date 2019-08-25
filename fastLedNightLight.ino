@@ -296,7 +296,7 @@ String getButtonStatus() {
 
 // List of patterns to cycle through.  Each is defined as a separate function below.
 typedef void (*SimplePatternList[])();
-SimplePatternList gPatterns = { warmPalette1, solidColor };
+SimplePatternList gPatterns = { warmPalette1, rainbow, rainbowWithGlitter, confetti, sinelon }; //*****************
 
 uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 
@@ -352,7 +352,8 @@ void loop()
     pos = newPos;
   } // if
 
-  EVERY_N_MILLISECONDS ( 50 )
+  // I found I needed to use this 'delay' as a debounce technique
+  EVERY_N_MILLISECONDS ( 50 ) 
   {
     newStatus = getButtonStatus();    
   }
@@ -369,20 +370,7 @@ void loop()
 
 
 BRIGHTNESS = pos;
-EVERY_N_MILLISECONDS(200) {
-  ChangePalettePeriodically();
-};
 
-
-// rotation speed. lower millis to go faster
-EVERY_N_MILLISECONDS ( 32 ) startIndex++;
-
-// how often to blend and write to the LEDS
-EVERY_N_MILLISECONDS( 16 ) {
-  nblendPaletteTowardPalette( currentPalette, targetPalette, maxChanges );
-  FillLEDsFromPaletteColors( startIndex);
-  FastLED.show();
-};
 }
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
@@ -395,11 +383,83 @@ void toggleRoutine() {
 void warmPalette1()
 {
   EVERY_N_MILLISECONDS(1000) { Serial.println("warm palette"); };
+  EVERY_N_MILLISECONDS(200) {
+  ChangePalettePeriodically();
+    };
+
+  // rotation speed. lower millis to go faster
+  EVERY_N_MILLISECONDS ( 32 ) startIndex++;
+
+  // how often to blend and write to the LEDS
+  EVERY_N_MILLISECONDS( 16 ) {
+    nblendPaletteTowardPalette( currentPalette, targetPalette, maxChanges );
+    FillLEDsFromPaletteColors( startIndex);
+    FastLED.show();
+  };
+
 }
 
-void solidColor()
+uint8_t gHue = 110; // rotating "base color" used by many of the patterns
+void rainbow()
 {
-  EVERY_N_MILLISECONDS(1000) { Serial.println("solid colors"); };
+  EVERY_N_MILLISECONDS(1000) { Serial.println("rainbow"); };
+  EVERY_N_MILLISECONDS( 10 ) { gHue++; } // slowly cycle the "base color" through the rainbow
+  fill_rainbow( leds, NUM_LEDS, gHue, 7); //lower number spreads out the rainbow more
+  FastLED.setBrightness(  BRIGHTNESS );
+  FastLED.show();  
+}
+
+void rainbowWithGlitter()
+{
+  EVERY_N_MILLISECONDS(1000) { Serial.println("rainbow with glitter"); };
+  EVERY_N_MILLISECONDS( 10 ) gHue++; // slowly cycle the "base color" through the rainbow
+  fill_rainbow( leds, NUM_LEDS, gHue, 7); //lower number spreads out the rainbow more
+  FastLED.setBrightness(  BRIGHTNESS );
+  addGlitter(20);
+  EVERY_N_MILLISECONDS(8)
+    FastLED.show();
+}
+
+void addGlitter( fract8 chanceOfGlitter) 
+{
+  if( random8() < chanceOfGlitter) {
+    leds[ random16(NUM_LEDS) ] += CRGB::White;
+  }
+}
+
+void confetti()
+{
+  EVERY_N_MILLISECONDS(64) fadeToBlackBy( leds, NUM_LEDS, 2);
+  EVERY_N_MILLISECONDS(10) gHue++;
+  EVERY_N_MILLISECONDS(2000) Serial.println("confetti");
+
+  EVERY_N_MILLISECONDS(100)
+  {
+    int daPos = random16(NUM_LEDS);
+    int posLeft = daPos - 1;
+    if (posLeft < 0) posLeft = 0;
+    int posRight = daPos + 1;
+    if (posRight > (NUM_LEDS - 1)) posRight = NUM_LEDS - 1;
+     
+    //  leds[pos] += CHSV( gHue + random8(64), 255, 255);
+    uint8_t randomValue = gHue + random8(64);
+    leds[daPos] += CHSV( randomValue, 255, BRIGHTNESS );
+    leds[posLeft] += CHSV( randomValue, 200, round(BRIGHTNESS / 3));
+    leds[posRight] += CHSV( randomValue, 200, round(BRIGHTNESS / 3));
+    
+  }
+  FastLED.show();
+}
+
+void sinelon()
+{
+  // a colored dot sweeping back and forth, with fading trails
+  EVERY_N_MILLISECONDS(8) fadeToBlackBy( leds, NUM_LEDS, 4);
+  EVERY_N_MILLISECONDS(16) gHue++;
+  EVERY_N_MILLISECONDS(2000) Serial.println("sinelon");
+  int pos = beatsin16(13,0,NUM_LEDS);
+  leds[pos] += CHSV( gHue, 255, BRIGHTNESS);
+  FastLED.show();
 }
 
 uint8_t placeOnColorPalette = 0;
@@ -413,19 +473,6 @@ void FillLEDsFromPaletteColors( uint8_t colorIndex)
     // Serial.println(sin8( i * 12 ));
   }
 }
-
-// The code below is not how I would recommend changing palettes.
-// Instead we'll create a way to iterate over a list of palettes when triggered
-// by another EVERY_N_MILLISECONDS kind of thing.
-// Anyways, below is where you can easily mess with
-// the colors and palettes. The RainbowColors_p, LavaColors_p, ... are built
-// in palettes that use minimal memory so are nice to use. On this ESP32 board
-// though there's tons of memory so totally custom palettes are no problem.
-//
-//--Ron
-
-
-
 
 void ChangePalettePeriodically()
 {
