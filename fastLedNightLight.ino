@@ -43,6 +43,17 @@ DEFINE_GRADIENT_PALETTE( October_Sky_gp ) {
   255, 227, 122,  9
 };
 
+DEFINE_GRADIENT_PALETTE( Ron_Sky_gp ) {
+  0, 42, 7, 11,
+  50, 192, 25, 11,
+  90, 213, 43,  8,
+  130, 232, 66,  5,
+  170, 229, 91,  7,
+  210, 227, 122,  9,
+  255, 227, 122,  9
+};
+
+
 // Gradient palette "sky_33_gp", originally from
 // http://soliton.vm.bytemark.co.uk/pub/cpt-city/rafi/tn/sky-33.png.index.html
 // converted for FastLED with gammas (2.6, 2.2, 2.5)
@@ -136,6 +147,33 @@ DEFINE_GRADIENT_PALETTE( Quick_Vent_gp ) {
   255,  42, 55, 45
 };
 
+// Gradient palette "Quick_Vent_gp", originally from
+// http://soliton.vm.bytemark.co.uk/pub/cpt-city/lb/mp/tn/Quick_Vent.png.index.html
+// converted for FastLED with gammas (2.6, 2.2, 2.5)
+// Size: 80 bytes of program space.
+
+DEFINE_GRADIENT_PALETTE( Ron_Vent_gp ) {
+  0,   30,  30,  30,
+  25,  42, 55, 45,
+  25, 255, 255, 255,
+  51,  42, 55, 45,
+  51,   30,  30,  30,
+  76,  42, 55, 45,
+  76, 255, 255, 255,
+  101,  42, 55, 45,
+  101,   30,  30,  30,
+  127,  42, 55, 45,
+  127, 255, 255, 255,
+  153,  42, 55, 45,
+  153,   30,  30,  30,
+  178,  42, 55, 45,
+  178, 255, 255, 255,
+  204,  42, 55, 45,
+  204,   30,  30,  30,
+  229,  42, 55, 45,
+  229, 255, 255, 255,
+  255,  42, 55, 45
+};
 
 // Gradient palette "Wild_Orange_gp", originally from
 // http://soliton.vm.bytemark.co.uk/pub/cpt-city/lb/mp/tn/Wild_Orange.png.index.html
@@ -302,9 +340,9 @@ uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 
 
 //CRGBPalette16 currentPalette( CRGB::Black);
-CRGBPalette16 currentPalette( Fuschia_6_gp );
+CRGBPalette16 currentPalette( Ron_Sky_gp );
 
-CRGBPalette16 targetPalette( Fuschia_6_gp );
+CRGBPalette16 targetPalette( Ron_Sky_gp );
 
 
 void setup() {
@@ -556,7 +594,7 @@ void FillLEDsFromPaletteColors( uint8_t colorIndex)
 {
   for ( int i = 0; i < NUM_LEDS; i++) {
     //    leds[i] = ColorFromPalette( currentPalette, colorIndex + sin8(i*16), BRIGHTNESS);
-    placeOnColorPalette = colorIndex + sin8( round((i * (256 / NUM_LEDS)) / 2 )); // <-- change divisor here for how much we spread out the spectrum on the leds
+    placeOnColorPalette = colorIndex + sin8( round((i * (256 / NUM_LEDS)) / 4 )); // <-- change divisor here for how much we spread out the spectrum on the leds
     leds[i] = ColorFromPalette( currentPalette, placeOnColorPalette, BRIGHTNESS);
     // Serial.println(sin8( i * 12 ));
   }
@@ -576,11 +614,11 @@ void ChangePalettePeriodically()
     CRGB w = CRGB::White;
     //    if( secondHand ==  0)  { targetPalette = RainbowColors_p;
     if ( secondHand ==  0)  {
-      targetPalette = October_Sky_gp;
+      targetPalette = Ron_Sky_gp;
       Serial.println("sky 45 for Owen");
     }
-    if ( secondHand == 16)  {
-      targetPalette = Quick_Vent_gp;
+    if ( secondHand == 13)  {
+      targetPalette = Ron_Vent_gp;
       Serial.println("quick vent");
     }
     /*   if( secondHand == 10)  { targetPalette = CRGBPalette16( g,p,b,bl, p,p,bl,p, p,g,b,b, bl,p,bl,b);
@@ -590,19 +628,20 @@ void ChangePalettePeriodically()
     //Serial.println("black white");
     // }
     if ( secondHand == 20)  {
+//      targetPalette = Warm_summer_day_gp;
       targetPalette = Warm_summer_day_gp;
       Serial.println("sky 33 for Savannah");
     }
-    if ( secondHand == 36)  {
-      targetPalette = Quick_Vent_gp;
+    if ( secondHand == 33)  {
+      targetPalette = Ron_Vent_gp;
       Serial.println("wild orange");
     }
     if ( secondHand == 40)  {
-      targetPalette = Warm_summer_day_gp;
+      targetPalette = Ron_Sky_gp;
       Serial.println("molten lava");
     }
-    if ( secondHand == 56)  {
-      targetPalette = Quick_Vent_gp;
+    if ( secondHand == 53)  {
+      targetPalette = Ron_Vent_gp;
       Serial.println("liahlah2");
     }
   }
