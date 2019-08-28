@@ -296,7 +296,7 @@ String getButtonStatus() {
 
 // List of patterns to cycle through.  Each is defined as a separate function below.
 typedef void (*SimplePatternList[])();
-SimplePatternList gPatterns = { warmPalette1, rainbow, rainbowWithGlitter, confetti, sinelon }; //*****************
+SimplePatternList gPatterns = { warmPalette1, rainbow, rainbowWithGlitter, confetti, sinelon, fillSolid, fillGradient1, fillGradient2, fillGradient3 }; //*****************
 
 uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 
@@ -353,23 +353,23 @@ void loop()
   } // if
 
   // I found I needed to use this 'delay' as a debounce technique
-  EVERY_N_MILLISECONDS ( 50 ) 
+  EVERY_N_MILLISECONDS ( 50 )
   {
-    newStatus = getButtonStatus();    
+    newStatus = getButtonStatus();
   }
-  
+
   if (newStatus != buttonStatus)
   {
     buttonStatus = newStatus;
     Serial.println(buttonStatus);
     if (buttonStatus == "LOW")
-      toggleRoutine(); 
+      toggleRoutine();
   }
- 
+
   gPatterns[gCurrentPatternNumber]();
 
 
-BRIGHTNESS = pos;
+  BRIGHTNESS = pos;
 
 }
 
@@ -380,12 +380,89 @@ void toggleRoutine() {
   gCurrentPatternNumber = (gCurrentPatternNumber + 1) % ARRAY_SIZE( gPatterns);
 }
 
+
+void fillSolid()
+{
+  CHSV hueToFillWith(150, 255, BRIGHTNESS);
+  fill_solid(leds, NUM_LEDS, hueToFillWith);
+
+  FastLED.show();
+}
+
+void fillGradient1()
+{
+  CHSV hue1(250, 255, BRIGHTNESS);
+  CHSV hue2(210, 255, BRIGHTNESS);
+  fill_gradient(leds, NUM_LEDS, hue1, hue2, SHORTEST_HUES);
+
+  FastLED.show();
+
+  //  fill_solid(leds+5,5, CRGB::Green);
+  //  fill_solid(leds+10,5, hsvval);
+
+  // fill_gradient section
+  //  fill_gradient_RGB(leds, startpos, 0x000011, endpos, 0x110000);   // You can mix and match long values and CRGB values. Remember, endpos goes up to NUM_LEDS-1
+  //  fill_gradient_RGB(leds, NUM_LEDS, CRGB(50,0,200), CRGB(80,200,240));  // up to 4 CRGB (or long) values
+
+  //FORWARD_HUES, BACKWARD_HUES, SHORTEST_HUES, LONGEST_HUES
+  //  fill_gradient(leds, startpos, CHSV(50, 255,255) , endpos, CHSV(150,255,255), SHORTEST_HUES);
+  //  fill_gradient(leds, NUM_LEDS, CHSV(50, 255,255), CHSV(100,255,255), LONGEST_HUES);    // up to 4 CHSV values
+
+  // fill_rainbow section
+  //  fill_rainbow(leds, NUM_LEDS, thishue, deltahue);            // Use FastLED's fill_rainbow routine.
+  //  fill_solid(leds,NUM_LEDS,0);                                // Clear the strip for. . .
+  //  fill_rainbow(leds+1, NUM_LEDS-2, thishue, deltahue);        // One pixel border at each end.
+
+}
+
+//uint8_t hueValueToRotate = 0;
+void fillGradient2()
+{
+  // EVERY_N_MILLISECONDS(32) hueValueToRotate++;
+  int hueValueToRotate = beatsin8(6, 0, 255);
+
+  //  CHSV hue1(250,255,BRIGHTNESS);
+  CHSV hue2(128, 255, BRIGHTNESS);
+  CHSV hueToRotate(hueValueToRotate, 255, BRIGHTNESS);
+  //fill_gradient(leds, NUM_LEDS, hue1, hueToRotate, hue2, SHORTEST_HUES);
+  fill_gradient(leds, NUM_LEDS, hue2, hueToRotate, SHORTEST_HUES);
+
+  FastLED.show();
+
+  //  fill_solid(leds+5,5, CRGB::Green);
+  //  fill_solid(leds+10,5, hsvval);
+
+  // fill_gradient section
+  //  fill_gradient_RGB(leds, startpos, 0x000011, endpos, 0x110000);   // You can mix and match long values and CRGB values. Remember, endpos goes up to NUM_LEDS-1
+  //  fill_gradient_RGB(leds, NUM_LEDS, CRGB(50,0,200), CRGB(80,200,240));  // up to 4 CRGB (or long) values
+
+  //FORWARD_HUES, BACKWARD_HUES, SHORTEST_HUES, LONGEST_HUES
+  //  fill_gradient(leds, startpos, CHSV(50, 255,255) , endpos, CHSV(150,255,255), SHORTEST_HUES);
+  //  fill_gradient(leds, NUM_LEDS, CHSV(50, 255,255), CHSV(100,255,255), LONGEST_HUES);    // up to 4 CHSV values
+
+  // fill_rainbow section
+  //  fill_rainbow(leds, NUM_LEDS, thishue, deltahue);            // Use FastLED's fill_rainbow routine.
+  //  fill_solid(leds,NUM_LEDS,0);                                // Clear the strip for. . .
+  //  fill_rainbow(leds+1, NUM_LEDS-2, thishue, deltahue);        // One pixel border at each end.
+
+}
+
+void fillGradient3()
+{
+  uint8_t deltahue = beatsin8(2, 0, 12);
+
+  fill_rainbow(leds, NUM_LEDS, 0, deltahue);
+  FastLED.show();
+}
+
 void warmPalette1()
 {
-  EVERY_N_MILLISECONDS(1000) { Serial.println("warm palette"); };
+  EVERY_N_MILLISECONDS(1000) {
+    Serial.println("warm palette");
+  };
   EVERY_N_MILLISECONDS(200) {
-  ChangePalettePeriodically();
-    };
+    ChangePalettePeriodically();
+  };
 
   // rotation speed. lower millis to go faster
   EVERY_N_MILLISECONDS ( 32 ) startIndex++;
@@ -402,27 +479,33 @@ void warmPalette1()
 uint8_t gHue = 110; // rotating "base color" used by many of the patterns
 void rainbow()
 {
-  EVERY_N_MILLISECONDS(1000) { Serial.println("rainbow"); };
-  EVERY_N_MILLISECONDS( 10 ) { gHue++; } // slowly cycle the "base color" through the rainbow
+  EVERY_N_MILLISECONDS(1000) {
+    Serial.println("rainbow");
+  };
+  EVERY_N_MILLISECONDS( 10 ) {
+    gHue++;  // slowly cycle the "base color" through the rainbow
+  }
   fill_rainbow( leds, NUM_LEDS, gHue, 7); //lower number spreads out the rainbow more
   FastLED.setBrightness(  BRIGHTNESS );
-  FastLED.show();  
+  FastLED.show();
 }
 
 void rainbowWithGlitter()
 {
-  EVERY_N_MILLISECONDS(1000) { Serial.println("rainbow with glitter"); };
+  EVERY_N_MILLISECONDS(1000) {
+    Serial.println("rainbow with glitter");
+  };
   EVERY_N_MILLISECONDS( 10 ) gHue++; // slowly cycle the "base color" through the rainbow
   fill_rainbow( leds, NUM_LEDS, gHue, 7); //lower number spreads out the rainbow more
   FastLED.setBrightness(  BRIGHTNESS );
   addGlitter(20);
   EVERY_N_MILLISECONDS(8)
-    FastLED.show();
+  FastLED.show();
 }
 
-void addGlitter( fract8 chanceOfGlitter) 
+void addGlitter( fract8 chanceOfGlitter)
 {
-  if( random8() < chanceOfGlitter) {
+  if ( random8() < chanceOfGlitter) {
     leds[ random16(NUM_LEDS) ] += CRGB::White;
   }
 }
@@ -440,25 +523,30 @@ void confetti()
     if (posLeft < 0) posLeft = 0;
     int posRight = daPos + 1;
     if (posRight > (NUM_LEDS - 1)) posRight = NUM_LEDS - 1;
-     
+
     //  leds[pos] += CHSV( gHue + random8(64), 255, 255);
     uint8_t randomValue = gHue + random8(64);
     leds[daPos] += CHSV( randomValue, 255, BRIGHTNESS );
     leds[posLeft] += CHSV( randomValue, 200, round(BRIGHTNESS / 3));
     leds[posRight] += CHSV( randomValue, 200, round(BRIGHTNESS / 3));
-    
+
   }
   FastLED.show();
 }
 
+uint8_t gHue2 = 0;
 void sinelon()
 {
   // a colored dot sweeping back and forth, with fading trails
   EVERY_N_MILLISECONDS(8) fadeToBlackBy( leds, NUM_LEDS, 4);
   EVERY_N_MILLISECONDS(16) gHue++;
+  EVERY_N_MILLISECONDS(32) gHue2++;
+
   EVERY_N_MILLISECONDS(2000) Serial.println("sinelon");
-  int pos = beatsin16(13,0,NUM_LEDS);
+  int pos = beatsin16(13, 0, NUM_LEDS);
+  int pos2 = beatsin16(20, 0, NUM_LEDS);
   leds[pos] += CHSV( gHue, 255, BRIGHTNESS);
+  leds[pos2] += CHSV( gHue2, 255, BRIGHTNESS);
   FastLED.show();
 }
 
