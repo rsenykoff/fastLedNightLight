@@ -13,8 +13,8 @@ CRGB leds[NUM_LEDS];
 #define ROTARYSTEPS 3 // multiplier for how fast it adjusts the value
 #define ROTARYMIN 0
 #define ROTARYMAX 255
-#define ROTARYBUTTON 27
-RotaryEncoder encoder(14, 32); //adjust pins for your needs
+#define ROTARYBUTTON 13
+RotaryEncoder encoder1(14, 32); //adjust pins for your needs
 
 
 // This example shows how to cross-fade between different color palettes
@@ -372,15 +372,15 @@ static uint8_t startIndex = 0;
 int pos = 0;
 void loop()
 {
-  encoder.tick();
+  encoder1.tick();
   // get the current physical position and calc the logical position
-  int newPos = encoder.getPosition() * ROTARYSTEPS;
+  int newPos = encoder1.getPosition() * ROTARYSTEPS;
 
   if (newPos < ROTARYMIN) {
-    encoder.setPosition(ROTARYMAX / ROTARYSTEPS);
+    encoder1.setPosition(ROTARYMAX / ROTARYSTEPS);
     newPos = ROTARYMAX;
   } else if (newPos > ROTARYMAX) {
-    encoder.setPosition(ROTARYMIN / ROTARYSTEPS);
+    encoder1.setPosition(ROTARYMIN / ROTARYSTEPS);
     newPos = ROTARYMIN;
   } // if
 
@@ -618,7 +618,9 @@ void ChangePalettePeriodically()
       Serial.println("sky 45 for Owen");
     }
     if ( secondHand == 13)  {
-      targetPalette = Ron_Vent_gp;
+//      targetPalette = Ron_Vent_gp;
+        targetPalette = LavaColors_p;
+        
       Serial.println("quick vent");
     }
     /*   if( secondHand == 10)  { targetPalette = CRGBPalette16( g,p,b,bl, p,p,bl,p, p,g,b,b, bl,p,bl,b);
@@ -629,11 +631,11 @@ void ChangePalettePeriodically()
     // }
     if ( secondHand == 20)  {
 //      targetPalette = Warm_summer_day_gp;
-      targetPalette = Warm_summer_day_gp;
+      targetPalette = Ron_Sky_gp;
       Serial.println("sky 33 for Savannah");
     }
     if ( secondHand == 33)  {
-      targetPalette = Ron_Vent_gp;
+      targetPalette = LavaColors_p;
       Serial.println("wild orange");
     }
     if ( secondHand == 40)  {
@@ -641,7 +643,7 @@ void ChangePalettePeriodically()
       Serial.println("molten lava");
     }
     if ( secondHand == 53)  {
-      targetPalette = Ron_Vent_gp;
+      targetPalette = LavaColors_p;
       Serial.println("liahlah2");
     }
   }
