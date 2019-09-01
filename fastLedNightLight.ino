@@ -43,15 +43,48 @@ DEFINE_GRADIENT_PALETTE( October_Sky_gp ) {
   255, 227, 122,  9
 };
 
+// original modified for no blue led
 DEFINE_GRADIENT_PALETTE( Ron_Sky_gp ) {
-  0, 42, 7, 11,
-  50, 192, 25, 11,
-  90, 213, 43,  8,
-  130, 232, 66,  5,
-  170, 229, 91,  7,
-  210, 227, 122,  9,
-  255, 227, 122,  9
+  0, 42, 7, 0,
+  50, 192, 25, 0,
+  90, 213, 43,  0,
+  130, 232, 66,  0,
+  170, 229, 91,  0,
+  210, 227, 122,  0,
+  255, 227, 122,  0
 };
+
+// original modified for no blue led
+// Gradient palette "sky_04_gp", originally from
+// http://soliton.vm.bytemark.co.uk/pub/cpt-city/rafi/tn/sky-04.png.index.html
+// converted for FastLED with gammas (2.6, 2.2, 2.5)
+// Size: 16 bytes of program space.
+
+DEFINE_GRADIENT_PALETTE( sky_04_gp ) {
+  0, 255, 189,  0,
+  200, 110, 19,  0,
+  255,  27,  5,  0
+};
+
+
+// original modified for no blue led
+// Gradient palette "sky_31_gp", originally from
+// http://soliton.vm.bytemark.co.uk/pub/cpt-city/rafi/tn/sky-31.png.index.html
+// converted for FastLED with gammas (2.6, 2.2, 2.5)
+// Size: 20 bytes of program space.
+
+DEFINE_GRADIENT_PALETTE( sky_31_gp ) {
+  0,  87,  8,  0,
+  63, 142, 33,  0,
+  131, 157, 71, 0,
+  219,  27,  2,  0,
+  255,  27,  2,  0
+};
+
+
+
+
+
 
 
 // Gradient palette "sky_33_gp", originally from
@@ -334,15 +367,9 @@ String getButtonStatus() {
 
 // List of patterns to cycle through.  Each is defined as a separate function below.
 typedef void (*SimplePatternList[])();
-SimplePatternList gPatterns = { warmPalette1, rainbow, rainbowWithGlitter, confetti, sinelon, fillSolid, fillGradient1, fillGradient2, fillGradient3 }; //*****************
+SimplePatternList gPatterns = { warmPalette1, rainbow, rainbowWithGlitter, confetti, sinelon, fillSolid, fillGradient1, fillGradient2 }; //*****************
 
 uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
-
-
-//CRGBPalette16 currentPalette( CRGB::Black);
-CRGBPalette16 currentPalette( Ron_Sky_gp );
-
-CRGBPalette16 targetPalette( Ron_Sky_gp );
 
 
 void setup() {
@@ -357,6 +384,16 @@ void setup() {
   //FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
   FastLED.clear ();
   FastLED.setBrightness(  BRIGHTNESS );
+
+  //flash the strip to indicate it's working
+  for (int i = 0; i < 5; i++)
+  {
+    fillSolid();
+    delay(50);
+    FastLED.clear();
+    FastLED.show();
+    delay(50);
+  }
 }
 
 
@@ -364,9 +401,7 @@ void setup() {
 String buttonStatus = "";
 String newStatus = "";
 
-// max number of changes to the palette during a blend operation
-// I prefer low values with faster updates
-uint8_t maxChanges = 10;
+
 
 static uint8_t startIndex = 0;
 int pos = 0;
@@ -418,20 +453,31 @@ void toggleRoutine() {
   gCurrentPatternNumber = (gCurrentPatternNumber + 1) % ARRAY_SIZE( gPatterns);
 }
 
-
+// examples of fill and gradients
+// https://github.com/atuline/FastLED-Demos/blob/master/fill_colours/fill_colours.ino
 void fillSolid()
 {
-  CHSV hueToFillWith(150, 255, BRIGHTNESS);
+  CHSV hueToFillWith(150, 255, 255);
   fill_solid(leds, NUM_LEDS, hueToFillWith);
+  
+  // Dim a color by X/256ths
+  // using "video" scaling, meaning: never fading to full black
+  for (int i = 0; i < NUM_LEDS; i++)
+    leds[i].fadeLightBy( 255 - BRIGHTNESS );
 
   FastLED.show();
 }
 
 void fillGradient1()
 {
-  CHSV hue1(250, 255, BRIGHTNESS);
-  CHSV hue2(210, 255, BRIGHTNESS);
+  CHSV hue1(250, 255, 255);
+  CHSV hue2(210, 255, 255);
   fill_gradient(leds, NUM_LEDS, hue1, hue2, SHORTEST_HUES);
+  
+  // Dim a color by X/256ths
+  // using "video" scaling, meaning: never fading to full black
+  for (int i = 0; i < NUM_LEDS; i++)
+    leds[i].fadeLightBy( 255 - BRIGHTNESS );
 
   FastLED.show();
 
@@ -460,11 +506,17 @@ void fillGradient2()
   int hueValueToRotate = beatsin8(6, 0, 255);
 
   //  CHSV hue1(250,255,BRIGHTNESS);
-  CHSV hue2(128, 255, BRIGHTNESS);
-  CHSV hueToRotate(hueValueToRotate, 255, BRIGHTNESS);
+  CHSV hue2(128, 255, 255);
+  CHSV hueToRotate(hueValueToRotate, 255, 255);
   //fill_gradient(leds, NUM_LEDS, hue1, hueToRotate, hue2, SHORTEST_HUES);
   fill_gradient(leds, NUM_LEDS, hue2, hueToRotate, SHORTEST_HUES);
 
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    // Dim a color by X/256ths
+    // using "video" scaling, meaning: never fading to full black
+    leds[i].fadeLightBy( 255 - BRIGHTNESS );
+  }
   FastLED.show();
 
   //  fill_solid(leds+5,5, CRGB::Green);
@@ -485,13 +537,15 @@ void fillGradient2()
 
 }
 
-void fillGradient3()
-{
-  uint8_t deltahue = beatsin8(2, 0, 12);
 
-  fill_rainbow(leds, NUM_LEDS, 0, deltahue);
-  FastLED.show();
-}
+//CRGBPalette16 currentPalette( CRGB::Black);
+CRGBPalette16 currentPalette( Ron_Sky_gp );
+
+CRGBPalette16 targetPalette( Ron_Sky_gp );
+
+// max number of changes to the palette during a blend operation
+// I prefer low values with faster updates
+uint8_t maxChanges = 5;
 
 void warmPalette1()
 {
@@ -515,6 +569,7 @@ void warmPalette1()
 }
 
 uint8_t gHue = 110; // rotating "base color" used by many of the patterns
+
 void rainbow()
 {
   EVERY_N_MILLISECONDS(1000) {
@@ -524,7 +579,12 @@ void rainbow()
     gHue++;  // slowly cycle the "base color" through the rainbow
   }
   fill_rainbow( leds, NUM_LEDS, gHue, 7); //lower number spreads out the rainbow more
-  FastLED.setBrightness(  BRIGHTNESS );
+
+  // Dim a color by X/256ths
+  // using "video" scaling, meaning: never fading to full black
+  for (int i = 0; i < NUM_LEDS; i++)
+    leds[i].fadeLightBy( 255 - BRIGHTNESS );
+
   FastLED.show();
 }
 
@@ -535,7 +595,10 @@ void rainbowWithGlitter()
   };
   EVERY_N_MILLISECONDS( 10 ) gHue++; // slowly cycle the "base color" through the rainbow
   fill_rainbow( leds, NUM_LEDS, gHue, 7); //lower number spreads out the rainbow more
-  FastLED.setBrightness(  BRIGHTNESS );
+
+  for (int i = 0; i < NUM_LEDS; i++)
+    leds[i].fadeLightBy( 255 - BRIGHTNESS );
+
   addGlitter(20);
   EVERY_N_MILLISECONDS(8)
   FastLED.show();
@@ -564,10 +627,13 @@ void confetti()
 
     //  leds[pos] += CHSV( gHue + random8(64), 255, 255);
     uint8_t randomValue = gHue + random8(64);
-    leds[daPos] += CHSV( randomValue, 255, BRIGHTNESS );
-    leds[posLeft] += CHSV( randomValue, 200, round(BRIGHTNESS / 3));
-    leds[posRight] += CHSV( randomValue, 200, round(BRIGHTNESS / 3));
+    leds[daPos] += CHSV( randomValue, 255, 255 );
+    leds[posLeft] += CHSV( randomValue, 200, round(255 / 3));
+    leds[posRight] += CHSV( randomValue, 200, round(255 / 3));
 
+    leds[daPos].fadeLightBy( 255 - BRIGHTNESS );
+    leds[posLeft].fadeLightBy( 255 - BRIGHTNESS );
+    leds[posRight].fadeLightBy( 255 - BRIGHTNESS );
   }
   FastLED.show();
 }
@@ -581,10 +647,14 @@ void sinelon()
   EVERY_N_MILLISECONDS(32) gHue2++;
 
   EVERY_N_MILLISECONDS(2000) Serial.println("sinelon");
-  int pos = beatsin16(13, 0, NUM_LEDS);
-  int pos2 = beatsin16(20, 0, NUM_LEDS);
-  leds[pos] += CHSV( gHue, 255, BRIGHTNESS);
-  leds[pos2] += CHSV( gHue2, 255, BRIGHTNESS);
+  int pos = beatsin16(14, 0, NUM_LEDS - 1);
+  int pos2 = beatsin16(34, 0, NUM_LEDS - 1);
+  leds[pos] += CHSV( gHue, 255, 255);
+  leds[pos2] += CHSV( gHue2, 255, 255);
+
+  leds[pos].fadeLightBy( 255 - BRIGHTNESS );
+  leds[pos2].fadeLightBy( 255 - BRIGHTNESS );
+  
   FastLED.show();
 }
 
@@ -592,11 +662,14 @@ uint8_t placeOnColorPalette = 0;
 
 void FillLEDsFromPaletteColors( uint8_t colorIndex)
 {
-  for ( int i = 0; i < NUM_LEDS; i++) {
+  for ( int i = 0; i < NUM_LEDS; i++)
+  {
     //    leds[i] = ColorFromPalette( currentPalette, colorIndex + sin8(i*16), BRIGHTNESS);
     placeOnColorPalette = colorIndex + sin8( round((i * (256 / NUM_LEDS)) / 4 )); // <-- change divisor here for how much we spread out the spectrum on the leds
-    leds[i] = ColorFromPalette( currentPalette, placeOnColorPalette, BRIGHTNESS);
-    // Serial.println(sin8( i * 12 ));
+    leds[i] = ColorFromPalette( currentPalette, placeOnColorPalette, 255); //full bright then dim
+    // Dim a color by X/256ths
+    // using "video" scaling, meaning: avoids fading a single led (R,G,B) to 0 which would look wrong a low light levels
+    leds[i].fadeLightBy( 255 - BRIGHTNESS );
   }
 }
 
@@ -607,44 +680,34 @@ void ChangePalettePeriodically()
 
   if ( lastSecond != secondHand) {
     lastSecond = secondHand;
-    CRGB p = CHSV( HUE_PURPLE, 255, 255);
-    CRGB g = CHSV( HUE_GREEN, 255, 255);
-    CRGB bl = CHSV( HUE_BLUE, 255, 255);
-    CRGB b = CRGB::Black;
-    CRGB w = CRGB::White;
     //    if( secondHand ==  0)  { targetPalette = RainbowColors_p;
     if ( secondHand ==  0)  {
       targetPalette = Ron_Sky_gp;
-      Serial.println("sky 45 for Owen");
+      //     targetPalette = sky_31_gp;
+      Serial.println("Ron_Sky_gp");
     }
     if ( secondHand == 13)  {
-//      targetPalette = Ron_Vent_gp;
-        targetPalette = LavaColors_p;
-        
-      Serial.println("quick vent");
+      //      targetPalette = Ron_Vent_gp;
+      targetPalette = sky_04_gp;
+
+      Serial.println("sky_04_gp");
     }
-    /*   if( secondHand == 10)  { targetPalette = CRGBPalette16( g,p,b,bl, p,p,bl,p, p,g,b,b, bl,p,bl,b);
-                                 //Serial.println("purple blue");
-                               } */
-    // if( secondHand == 20)  { targetPalette = CRGBPalette16( b,b,b,w, b,b,b,w, b,b,b,w, b,b,b,w);
-    //Serial.println("black white");
-    // }
     if ( secondHand == 20)  {
-//      targetPalette = Warm_summer_day_gp;
-      targetPalette = Ron_Sky_gp;
-      Serial.println("sky 33 for Savannah");
+      //      targetPalette = Warm_summer_day_gp;
+      targetPalette = sky_31_gp;
+      Serial.println("sky_31_gp");
     }
     if ( secondHand == 33)  {
-      targetPalette = LavaColors_p;
-      Serial.println("wild orange");
+      targetPalette = Ron_Sky_gp;
+      Serial.println("Ron_Sky_gp");
     }
     if ( secondHand == 40)  {
-      targetPalette = Ron_Sky_gp;
-      Serial.println("molten lava");
+      targetPalette = sky_04_gp;
+      Serial.println("sky_04_gp");
     }
     if ( secondHand == 53)  {
-      targetPalette = LavaColors_p;
-      Serial.println("liahlah2");
+      targetPalette = sky_31_gp;
+      Serial.println("sky_31_gp");
     }
   }
 }
