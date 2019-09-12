@@ -550,8 +550,10 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS).setCorrection ( TypicalLEDStrip );
   //FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
   FastLED.clear ();
-  FastLED.setBrightness(  BRIGHTNESS );
+  FastLED.setBrightness( BRIGHTNESS );
 
+  //FastLED.setDither( 0 ); // FastLED temporal dithering. At very low light levels it causes flickering, 0 disables
+  
   //flash the strip to indicate it's working
   for (int i = 0; i < 5; i++)
   {
@@ -605,6 +607,7 @@ void loop()
   gPatterns[gCurrentPatternNumber]();
 
   BRIGHTNESS = pos;
+  //showfps();
 }
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
@@ -623,8 +626,6 @@ void fillSolid()
   CHSV hueToFillWith(150, 255, 255);
   fill_solid(leds, NUM_LEDS, hueToFillWith);
   
-  // Dim a color by X/256ths
-  // using "video" scaling, meaning: never fading to full black
   for (int i = 0; i < NUM_LEDS; i++)
     leds[i].fadeLightBy( 255 - BRIGHTNESS );
 
@@ -706,8 +707,9 @@ void warmPalette1()
   EVERY_N_MILLISECONDS( 8) {
     nblendPaletteTowardPalette( currentPalette, targetPalette, maxChanges );
     FillLEDsFromPaletteColors( startIndex);
-    FastLED.show();
   };
+  
+  FastLED.show();
 }
 
 void coolPalette1()
@@ -726,8 +728,9 @@ void coolPalette1()
   EVERY_N_MILLISECONDS( 8 ) {
     nblendPaletteTowardPalette( currentPalette, targetPalette, maxChanges );
     FillLEDsFromPaletteColors( startIndex);
-    FastLED.show();
   };
+
+    FastLED.show();
 }
 
 void coolPalette2()
@@ -746,8 +749,9 @@ void coolPalette2()
   EVERY_N_MILLISECONDS( 8 ) {
     nblendPaletteTowardPalette( currentPalette, targetPalette, maxChanges );
     FillLEDsFromPaletteColors( startIndex);
-    FastLED.show();
   };
+
+  FastLED.show();
 }
 
 uint8_t gHue = 110; // rotating "base color" used by many of the patterns
@@ -782,7 +786,7 @@ void rainbowWithGlitter()
     leds[i].fadeLightBy( 255 - BRIGHTNESS );
 
   addGlitter(20);
-  EVERY_N_MILLISECONDS(8)
+  //EVERY_N_MILLISECONDS(8)
   FastLED.show();
 }
 
@@ -960,5 +964,14 @@ void ChangePaletteCool2()
       targetPalette = mellon_ball_surprise_gp;
       Serial.println("mellon_ball_surprise_gp");
     }
+  }
+}
+int loops = 0;
+void showfps() {                                              
+  loops++;
+  EVERY_N_MILLISECONDS(1000) {
+    Serial.print("FPS: ");
+    Serial.println(loops);
+    loops = 0;
   }
 }
