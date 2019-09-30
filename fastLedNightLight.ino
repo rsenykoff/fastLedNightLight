@@ -534,7 +534,7 @@ String getButtonStatus() {
 
 // List of patterns to cycle through.  Each is defined as a separate function below.
 typedef void (*SimplePatternList[])();
-SimplePatternList gPatterns = { warmPalette1, coolPalette1, coolPalette2, rainbow, rainbowWithGlitter, confetti, sinelon, fillSolid, fillGradient1, fillGradient2 }; //*****************
+SimplePatternList gPatterns = { fillSolid, warmPalette1, coolPalette1, coolPalette2, rainbow, rainbowWithGlitter, confetti, sinelon, fillGradient1, fillGradient2 }; //*****************
 
 uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 
@@ -588,6 +588,7 @@ void loop()
   } 
 
   if (pos != newPos) {
+    Serial.print("BRIGHTNESS: ");
     Serial.print(newPos);
     Serial.println();
     pos = newPos;
@@ -623,7 +624,7 @@ void toggleRoutine() {
 // https://github.com/atuline/FastLED-Demos/blob/master/fill_colours/fill_colours.ino
 void fillSolid()
 {
-  CHSV hueToFillWith(150, 255, 255);
+  CHSV hueToFillWith(245, 128, 255);
   fill_solid(leds, NUM_LEDS, hueToFillWith);
   
   for (int i = 0; i < NUM_LEDS; i++)
