@@ -3,7 +3,7 @@
 
 /*  LED SETUP  */
 #define LED_PIN     15
-#define NUM_LEDS    19
+#define NUM_LEDS    36
 int BRIGHTNESS =    255; //value to be controlled by the rotary encoder
 #define LED_TYPE    NEOPIXEL
 //#define COLOR_ORDER GRB
@@ -549,6 +549,11 @@ void setup() {
 
   FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS).setCorrection ( TypicalLEDStrip );
   //FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
+
+  //especially useful when limiting for USB supply
+  FastLED.setMaxPowerInMilliWatts(1500);
+
+  
   FastLED.clear ();
   FastLED.setBrightness( BRIGHTNESS );
 
