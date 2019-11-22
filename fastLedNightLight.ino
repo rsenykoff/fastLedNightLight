@@ -3,7 +3,7 @@
 
 /*  LED SETUP  */
 #define LED_PIN     15
-#define NUM_LEDS    36
+#define NUM_LEDS    59
 int BRIGHTNESS =    255; //value to be controlled by the rotary encoder
 #define LED_TYPE    NEOPIXEL
 //#define COLOR_ORDER GRB
@@ -14,7 +14,7 @@ CRGB leds[NUM_LEDS];
 #define ROTARYMIN 0
 #define ROTARYMAX 255
 #define ROTARYBUTTON 13
-RotaryEncoder encoder1(14, 32); //adjust pins for your needs
+RotaryEncoder encoder1(32, 14); //adjust pins for your needs
 
 
 // This example shows how to cross-fade between different color palettes
@@ -534,7 +534,7 @@ String getButtonStatus() {
 
 // List of patterns to cycle through.  Each is defined as a separate function below.
 typedef void (*SimplePatternList[])();
-SimplePatternList gPatterns = { fillSolid, warmPalette1, coolPalette1, coolPalette2, rainbow, rainbowWithGlitter, confetti, sinelon, fillGradient1, fillGradient2 }; //*****************
+SimplePatternList gPatterns = { fillSolid, chooseSolid, chooseSaturation, warmPalette1, coolPalette1, coolPalette2, rainbow, rainbowWithGlitter, confetti, sinelon, fillGradient1, fillGradient2 }; //*****************
 
 uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 
@@ -551,7 +551,7 @@ void setup() {
   //FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
 
   //especially useful when limiting for USB supply
-  FastLED.setMaxPowerInMilliWatts(1500);
+  FastLED.setMaxPowerInMilliWatts(10000);
 
   
   FastLED.clear ();
@@ -612,7 +612,11 @@ void loop()
 
   gPatterns[gCurrentPatternNumber]();
 
-  BRIGHTNESS = pos;
+  if (gCurrentPatternNumber == 1 || gCurrentPatternNumber == 2)
+  {
+    
+  }
+  else BRIGHTNESS = pos;
   //showfps();
 }
 
@@ -630,6 +634,32 @@ void toggleRoutine() {
 void fillSolid()
 {
   CHSV hueToFillWith(245, 128, 255);
+  fill_solid(leds, NUM_LEDS, hueToFillWith);
+  
+  for (int i = 0; i < NUM_LEDS; i++)
+    leds[i].fadeLightBy( 255 - BRIGHTNESS );
+
+  FastLED.show();
+}
+
+int savedColor = 128;
+void chooseSolid()
+{
+  savedColor = pos;
+  CHSV hueToFillWith(savedColor, 255, 255);
+  fill_solid(leds, NUM_LEDS, hueToFillWith);
+  
+  for (int i = 0; i < NUM_LEDS; i++)
+    leds[i].fadeLightBy( 255 - BRIGHTNESS );
+
+  FastLED.show();
+}
+
+int savedSaturation = 255;
+void chooseSaturation()
+{
+  savedSaturation = pos;
+  CHSV hueToFillWith(savedColor, savedSaturation, 255);
   fill_solid(leds, NUM_LEDS, hueToFillWith);
   
   for (int i = 0; i < NUM_LEDS; i++)
