@@ -3,18 +3,19 @@
 
 /*  LED SETUP  */
 #define LED_PIN     15
-#define NUM_LEDS    59
+#define NUM_LEDS    36
 int BRIGHTNESS =    255; //value to be controlled by the rotary encoder
 #define LED_TYPE    NEOPIXEL
 //#define COLOR_ORDER GRB
 CRGB leds[NUM_LEDS];
+int MAX_POWER = 1500; // in milliamps
 
 /* Rotary Encoder Setup */
 #define ROTARYSTEPS 3 // multiplier for how fast it adjusts the value
 #define ROTARYMIN 0
 #define ROTARYMAX 255
 #define ROTARYBUTTON 13
-RotaryEncoder encoder1(32, 14); //adjust pins for your needs
+RotaryEncoder encoder1(14, 32); //adjust pins for your needs
 
 
 // This example shows how to cross-fade between different color palettes
@@ -551,7 +552,7 @@ void setup() {
   //FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
 
   //especially useful when limiting for USB supply
-  FastLED.setMaxPowerInMilliWatts(10000);
+  FastLED.setMaxPowerInMilliWatts(MAX_POWER);
 
   
   FastLED.clear ();
