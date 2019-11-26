@@ -726,7 +726,7 @@ CRGBPalette16 targetPalette( Ron_Sky_gp );
 
 // max number of changes to the palette during a blend operation
 // I prefer low values with faster updates
-uint8_t maxChanges = 5;
+uint8_t maxChanges = 7;
 
 void warmPalette1()
 {
@@ -738,7 +738,7 @@ void warmPalette1()
   };
 
   // rotation speed. lower millis to go faster
-  EVERY_N_MILLISECONDS ( 32 ) startIndex++;
+  EVERY_N_MILLISECONDS ( 48 ) startIndex++;
 
   // how often to blend and write to the LEDS
   EVERY_N_MILLISECONDS( 8) {
@@ -798,10 +798,10 @@ void rainbow()
   EVERY_N_MILLISECONDS(1000) {
     Serial.println("rainbow");
   };
-  EVERY_N_MILLISECONDS( 10 ) {
+  EVERY_N_MILLISECONDS( 48 ) {
     gHue++;  // slowly cycle the "base color" through the rainbow
   }
-  fill_rainbow( leds, NUM_LEDS, gHue, 7); //lower number spreads out the rainbow more
+  fill_rainbow( leds, NUM_LEDS, gHue, 5); //lower number spreads out the rainbow more
 
   // Dim a color by X/256ths
   // using "video" scaling, meaning: never fading to full black
@@ -816,13 +816,13 @@ void rainbowWithGlitter()
   EVERY_N_MILLISECONDS(1000) {
     Serial.println("rainbow with glitter");
   };
-  EVERY_N_MILLISECONDS( 10 ) gHue++; // slowly cycle the "base color" through the rainbow
-  fill_rainbow( leds, NUM_LEDS, gHue, 7); //lower number spreads out the rainbow more
+  EVERY_N_MILLISECONDS( 48 ) gHue++; // slowly cycle the "base color" through the rainbow
+  fill_rainbow( leds, NUM_LEDS, gHue, 5); //lower number spreads out the rainbow more
 
   for (int i = 0; i < NUM_LEDS; i++)
     leds[i].fadeLightBy( 255 - BRIGHTNESS );
 
-  addGlitter(20);
+  addGlitter(10);
   //EVERY_N_MILLISECONDS(8)
   FastLED.show();
 }
@@ -870,8 +870,8 @@ void sinelon()
   EVERY_N_MILLISECONDS(32) gHue2++;
 
   EVERY_N_MILLISECONDS(2000) Serial.println("sinelon");
-  int pos = beatsin16(14, 0, NUM_LEDS - 1);
-  int pos2 = beatsin16(34, 0, NUM_LEDS - 1);
+  int pos = beatsin16(4, 0, NUM_LEDS - 1);
+  int pos2 = beatsin16(7, 0, NUM_LEDS - 1);
   leds[pos] += CHSV( gHue, 255, 255);
   leds[pos2] += CHSV( gHue2, 255, 255);
 
