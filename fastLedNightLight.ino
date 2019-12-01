@@ -15,7 +15,7 @@ int MAX_POWER = 1500; // in milliamps
 #define ROTARYMIN 0
 #define ROTARYMAX 255
 #define ROTARYBUTTON 13
-RotaryEncoder encoder1(14, 32); //adjust pins for your needs
+RotaryEncoder encoder1(32, 14); //adjust pins for your needs
 
 
 // This example shows how to cross-fade between different color palettes
@@ -535,7 +535,7 @@ String getButtonStatus() {
 
 // List of patterns to cycle through.  Each is defined as a separate function below.
 typedef void (*SimplePatternList[])();
-SimplePatternList gPatterns = { fillSolid, chooseSolid, chooseSaturation, warmPalette1, coolPalette1, coolPalette2, rainbow, rainbowWithGlitter, confetti, sinelon, fillGradient1, fillGradient2 }; //*****************
+SimplePatternList gPatterns = { fillGradient2, chooseSolid, chooseSaturation, warmPalette1, coolPalette1, coolPalette2, rainbow, rainbowWithGlitter, confetti, sinelon }; //*****************
 
 uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 
@@ -703,15 +703,15 @@ void fillGradient1()
 //uint8_t hueValueToRotate = 0;
 void fillGradient2()
 {
-  // EVERY_N_MILLISECONDS(32) hueValueToRotate++;
-  int hueValueToRotate = beatsin8(6, 0, 255);
-
-  //  CHSV hue1(250,255,BRIGHTNESS);
-  CHSV hue2(128, 255, 255);
+  int hueValueToRotate = beatsin8(2, 0, 127, 90);
+  //int hueValueToRotate2 = beatsin8(2, 128, 255, 90);
+  int hueValueToRotate2 = hueValueToRotate + 128;
+  CHSV hue2(hueValueToRotate2, 255, 255);
   CHSV hueToRotate(hueValueToRotate, 255, 255);
   //fill_gradient(leds, NUM_LEDS, hue1, hueToRotate, hue2, SHORTEST_HUES);
+ 
   fill_gradient(leds, NUM_LEDS, hue2, hueToRotate, SHORTEST_HUES);
-
+  
   for (int i = 0; i < NUM_LEDS; i++)
   {
     // Dim a color by X/256ths
@@ -840,7 +840,7 @@ void confetti()
   EVERY_N_MILLISECONDS(10) gHue++;
   EVERY_N_MILLISECONDS(2000) Serial.println("confetti");
 
-  EVERY_N_MILLISECONDS(100)
+  EVERY_N_MILLISECONDS(200)
   {
     int daPos = random16(NUM_LEDS);
     int posLeft = daPos - 1;
@@ -851,8 +851,8 @@ void confetti()
     //  leds[pos] += CHSV( gHue + random8(64), 255, 255);
     uint8_t randomValue = gHue + random8(64);
     leds[daPos] += CHSV( randomValue, 255, 255 );
-    leds[posLeft] += CHSV( randomValue, 200, round(255 / 3));
-    leds[posRight] += CHSV( randomValue, 200, round(255 / 3));
+    leds[posLeft] += CHSV( randomValue, 200, round(255 / 1.5));
+    leds[posRight] += CHSV( randomValue, 200, round(255 / 1.5));
 
     leds[daPos].fadeLightBy( 255 - BRIGHTNESS );
     leds[posLeft].fadeLightBy( 255 - BRIGHTNESS );
@@ -865,13 +865,13 @@ uint8_t gHue2 = 0;
 void sinelon()
 {
   // a colored dot sweeping back and forth, with fading trails
-  EVERY_N_MILLISECONDS(8) fadeToBlackBy( leds, NUM_LEDS, 4);
-  EVERY_N_MILLISECONDS(16) gHue++;
-  EVERY_N_MILLISECONDS(32) gHue2++;
+  EVERY_N_MILLISECONDS(16) fadeToBlackBy( leds, NUM_LEDS, 3);
+  EVERY_N_MILLISECONDS(40) gHue++;
+  EVERY_N_MILLISECONDS(8) gHue2++;
 
   EVERY_N_MILLISECONDS(2000) Serial.println("sinelon");
-  int pos = beatsin16(4, 0, NUM_LEDS - 1);
-  int pos2 = beatsin16(7, 0, NUM_LEDS - 1);
+  int pos = beatsin16(5, 0, NUM_LEDS - 1);
+  int pos2 = beatsin16(10, 0, NUM_LEDS - 1);
   leds[pos] += CHSV( gHue, 255, 255);
   leds[pos2] += CHSV( gHue2, 255, 255);
 
