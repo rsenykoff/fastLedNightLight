@@ -3,18 +3,21 @@
 
 /*  LED SETUP  */
 #define LED_PIN     15
-#define NUM_LEDS    36
+#define NUM_LEDS    120
 int BRIGHTNESS =    255; //value to be controlled by the rotary encoder
+
 #define LED_TYPE    NEOPIXEL
 //#define COLOR_ORDER GRB
 CRGB leds[NUM_LEDS];
-int MAX_POWER = 1500; // in milliamps
+int MAX_POWER = 10000; // in milliamps assuming 5 volts
 
 /* Rotary Encoder Setup */
 #define ROTARYSTEPS 3 // multiplier for how fast it adjusts the value
 #define ROTARYMIN 0
 #define ROTARYMAX 255
 #define ROTARYBUTTON 13
+#define SHOW_FPS false
+
 RotaryEncoder encoder1(32, 14); //adjust pins for your needs
 
 
@@ -535,7 +538,7 @@ String getButtonStatus() {
 
 // List of patterns to cycle through.  Each is defined as a separate function below.
 typedef void (*SimplePatternList[])();
-SimplePatternList gPatterns = { fillGradient2, chooseSolid, chooseSaturation, warmPalette1, coolPalette1, coolPalette2, rainbow, rainbowWithGlitter, confetti, sinelon }; //*****************
+SimplePatternList gPatterns = { rainbow, chooseSolid, chooseSaturation, warmPalette1, coolPalette1, coolPalette2, fillGradient2, rainbow, rainbowWithGlitter, confetti, sinelon }; //*****************
 
 uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 
@@ -578,12 +581,20 @@ String newStatus = "";
 
 static uint8_t startIndex = 0;
 int pos = 0;
+int newPos = 0;
+boolean firstTime = true;
 
 void loop()
 {
   encoder1.tick();
   // get the current physical position and calc the logical position
-  int newPos = encoder1.getPosition() * ROTARYSTEPS;
+
+  if (firstTime)
+  {
+    encoder1.setPosition(4); // initial brightness
+    firstTime = false;
+  }
+  newPos = encoder1.getPosition() * ROTARYSTEPS;
 
   if (newPos < ROTARYMIN) {
     encoder1.setPosition(ROTARYMAX / ROTARYSTEPS);
@@ -618,7 +629,10 @@ void loop()
     
   }
   else BRIGHTNESS = pos;
-  //showfps();
+  
+  if (SHOW_FPS == true ) //for clarity not brevity
+    showfps();
+
 }
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
@@ -993,6 +1007,18 @@ void ChangePaletteCool2()
       targetPalette = hangonfatboy_gp;
       Serial.println("hangonfatboy_gp");
     }
+    /* if ( secondHand == 10)  {
+      targetPalette = Everglowing_Wonder_gp;
+      Serial.println("Everglowing_Wonder_gp");
+    }
+    if ( secondHand == 20)  {
+      targetPalette = mellon_ball_surprise_gp;
+      Serial.println("mellon_ball_surprise_gp");
+    }
+    if ( secondHand == 30)  {
+      targetPalette = spellbound_gp;
+      Serial.println("spellbound_gp");
+    } */
     if ( secondHand == 40)  {
       targetPalette = Everglowing_Wonder_gp;
       Serial.println("Everglowing_Wonder_gp");
