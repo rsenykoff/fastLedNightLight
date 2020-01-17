@@ -3,13 +3,13 @@
 
 /*  LED SETUP  */
 #define LED_PIN     15
-#define NUM_LEDS    120
+#define NUM_LEDS    36
 int BRIGHTNESS =    255; //value to be controlled by the rotary encoder
 
 #define LED_TYPE    NEOPIXEL
 //#define COLOR_ORDER GRB
 CRGB leds[NUM_LEDS];
-int MAX_POWER = 10000; // in milliamps assuming 5 volts
+int MAX_POWER = 1500; // in milliamps assuming 5 volts
 
 /* Rotary Encoder Setup */
 #define ROTARYSTEPS 3 // multiplier for how fast it adjusts the value
@@ -19,7 +19,7 @@ int MAX_POWER = 10000; // in milliamps assuming 5 volts
 #define SHOW_FPS false
 
 RotaryEncoder encoder1(32, 14); //adjust pins for your needs
-
+#define INITIAL_ENCODER_POS 4
 
 // This example shows how to cross-fade between different color palettes
 // using the function nblendPaletteTowardPalette.
@@ -591,7 +591,7 @@ void loop()
 
   if (firstTime)
   {
-    encoder1.setPosition(4); // initial brightness
+    encoder1.setPosition(INITIAL_ENCODER_POS); // initial brightness
     firstTime = false;
   }
   newPos = encoder1.getPosition() * ROTARYSTEPS;
